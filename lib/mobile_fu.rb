@@ -31,14 +31,14 @@ module ActionController
         
       def has_mobile_fu(options={})
       
-        @@options = DEFAULT_OPTIONS.merge!(options)
+        options = DEFAULT_OPTIONS.merge!(options)
 
         include ActionController::MobileFu::InstanceMethods
 
         if options[:test_mode]
-          before_filter :force_mobile_format, @@options
+          before_filter :force_mobile_format, options
         else
-          before_filter :set_mobile_format, @@options
+          before_filter :set_mobile_format, options
         end
 
         helper_method :is_mobile_device?
@@ -63,8 +63,8 @@ module ActionController
       
       # Forces the request format to be :mobile
       
-      def force_mobile_format(options)
-        if !request.xhr? and (options[:only].nil? or options[:only].include?(action_name.to_sym))
+      def force_mobile_format
+        if !request.xhr?
           request.format = :mobile
           session[:mobile_view] = true if session[:mobile_view].nil?
         end
@@ -73,8 +73,8 @@ module ActionController
       # Determines the request format based on whether the device is mobile or if
       # the user has opted to use either the 'Standard' view or 'Mobile' view.
       
-      def set_mobile_format(options)
-        if is_mobile_device? and !request.xhr? and (options[:only].nil? or options[:only].include?(action_name.to_sym))
+      def set_mobile_format
+        if is_mobile_device? and !request.xhr?
           request.format = session[:mobile_view] == false ? :html : :mobile
           session[:mobile_view] = true if session[:mobile_view].nil?
         end
